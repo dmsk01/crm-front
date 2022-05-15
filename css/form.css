@@ -1,0 +1,12 @@
+.form__item {
+}
+.form__input {
+  width: 100%;
+  border: 1px solid rgba(51, 51, 51, 0.2);
+  padding: 12px 16px;
+  color: var(--lightGreyColor);
+}
+
+.form__input::placeholder {
+  color: var(--lightGreyColor);
+}
