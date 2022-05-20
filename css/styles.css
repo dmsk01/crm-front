@@ -76,3 +76,23 @@ div[class*="__container"] {
 .contacts-list > *:not(:last-child) {
   margin-right: 7px;
 }
+
+.table-footer {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.table-add-person > svg > path {
+  transition: fill 0.3s ease;
+}
+
+.table-add-person:active > svg > path,
+.table-add-person:focus > svg > path,
+.table-add-person:hover > svg > path {
+  fill: #fff;
+}
+.table-add-contact:active > svg > path,
+.table-add-contact:focus > svg > path,
+.table-add-contact:hover > svg > path {
+  fill: #fff;
+}

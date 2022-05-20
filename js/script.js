@@ -45,8 +45,6 @@ async function removeClient(url, id) {
 
 async function drawTable() {
   const usersList = await getClients("http://localhost:3000/api/clients");
-  console.log(usersList);
-
   usersList.forEach((user) => {
     createTalbleLine(user);
   });
@@ -55,9 +53,9 @@ async function drawTable() {
 drawTable();
 
 // addClient("http://localhost:3000/api/clients", {
-//   name: "Василий",
-//   surname: "Пупкин",
-//   lastName: "Васильевич",
+//   name: "Федор",
+//   surname: "Конев",
+//   lastName: "Иванович",
 //   contacts: [
 //     {
 //       type: "Телефон",
@@ -117,12 +115,29 @@ function convertISOTime(isoDate) {
 function createSocialLinks(contacts) {
   let contactsList = "";
   for (let contact of contacts) {
-    const id = "vk";
-    const type = contact.type;
-    const value = contact.value;
+    let id;
+    const { type, value } = contact;
+
+    switch (type) {
+      case "Телефон":
+        id = "phone";
+        break;
+      case "Email":
+        id = "mail";
+        break;
+      case "Facebook":
+        id = "fb";
+        break;
+      case "В контакте":
+        id = "vk";
+        break;
+      default:
+        id = "contact";
+    }
+
     const template = `
         <li class="item-body__social-link social-link">
-          <a href="${value}" target="_blank" title="${type}:${value}" data-bs-toggle="tooltip" data-bs-placement="top">
+          <a href="${value}" target="_blank" title="${type}: ${value}" data-bs-toggle="tooltip" data-bs-placement="top">
             <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
               <use xlink:href="./img/sprite.svg#${id}"></use>
             </svg>
@@ -132,6 +147,39 @@ function createSocialLinks(contacts) {
     contactsList += template;
   }
   return contactsList;
+}
+
+function createContact() {
+  const contactLine = document.createElement("div");
+  contactLine.classList.add(
+    "d-flex",
+    "align-content-center",
+    "mb-3",
+    "contact-line"
+  );
+  const input = document.createElement("input");
+  input.classList.add("form-control", "contact-input");
+  const deleteButton = document.createElement("button");
+  deleteButton.classList.add("contact-delete-button");
+  deleteButton.innerHTML = `
+    <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
+      <use xlink:href="./img/sprite.svg#cancel"></use>
+    </svg>
+  `;
+
+  const select = `
+    <select class="form-select form-select-sm contact-select" aria-label="contact type select">
+      <option selected value="Телефон">Телефон</option>
+      <option value="Email">Email</option>
+      <option value="Facebook">Facebook</option>
+      <option value="В контакте">В контакте</option>
+    </select>
+  `;
+  contactLine.innerHTML = select;
+  contactLine.appendChild(input);
+  contactLine.appendChild(deleteButton);
+
+  return contactLine;
 }
 
 function createTalbleLine(user) {
@@ -163,7 +211,7 @@ function createTalbleLine(user) {
         </ul>
       </td>
       <td>
-        <button>
+        <button class='button-change'>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g opacity="0.7">
               <path
@@ -175,7 +223,7 @@ function createTalbleLine(user) {
         </button>
       </td>
       <td>
-        <button>
+        <button class='button-delete'>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g opacity="0.7">
               <path
@@ -190,3 +238,15 @@ function createTalbleLine(user) {
   tableRow.innerHTML = baseInfoTemplate;
   tableContainer.appendChild(tableRow);
 }
+
+// function sortFunction(a, b, query) {
+//   if (a[query] > b[query]) return 1;
+//   if (a[query] < b[query]) return -1;
+//   return 0;
+// }
+
+document.querySelector(".table-add-contact").addEventListener("click", (e) => {
+  e.stopImmediatePropagation();
+  const contact = createContact();
+  document.querySelector("#add-contacts-container").appendChild(contact);
+});
