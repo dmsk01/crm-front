@@ -96,3 +96,8 @@ div[class*="__container"] {
 .table-add-contact:hover > svg > path {
   fill: #fff;
 }
+.contact-delete-button:active > svg path,
+.contact-delete-button:focus > svg path,
+.contact-delete-button:hover > svg path {
+  fill: #fff;
+}

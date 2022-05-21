@@ -12,8 +12,6 @@
   <link rel="stylesheet" href="css/null.css">
   <link rel="stylesheet" href="css/form.css">
   <link rel="stylesheet" href="css/styles.css">
-  <script defer src="./js/script.js"></script>
-  <script defer src="./js/libs.js"></script>
   <title>CRM</title>
 </head>
 
@@ -128,7 +126,7 @@
         </table>
         <div class="table-footer">
           <button type="button" class="table-add-person btn btn-outline-primary d-inline-flex align-items-center"
-            data-bs-toggle="modal" data-bs-target="#add-person-modal" data-bs-whatever="@mdo">
+            data-bs-toggle="modal" data-bs-target="#add-person-modal">
             <svg width="23" height="16" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M14.5 8C16.71 8 18.5 6.21 18.5 4C18.5 1.79 16.71 0 14.5 0C12.29 0 10.5 1.79 10.5 4C10.5 6.21 12.29 8 14.5 8ZM5.5 6V3H3.5V6H0.5V8H3.5V11H5.5V8H8.5V6H5.5ZM14.5 10C11.83 10 6.5 11.34 6.5 14V16H22.5V14C22.5 11.34 17.17 10 14.5 10Z"
@@ -151,15 +149,15 @@
           <form class="modal-form">
             <div class="mb-3">
               <label for="recipient-surname" class="col-form-label">Фамилия:</label>
-              <input type="text" class="form-control" id="recipient-surname">
+              <input id='surname-input' type="text" class="form-control" id="recipient-surname" name="surname">
             </div>
             <div class="mb-3">
               <label for="recipient-name" class="col-form-label">Имя:</label>
-              <input type="text" class="form-control" id="recipient-name">
+              <input id='name-input' type="text" class="form-control" id="recipient-name" name="name">
             </div>
             <div class="mb-3">
               <label for="recipient-lastname" class="col-form-label">Отчество:</label>
-              <input type="text" class="form-control" id="recipient-lastname">
+              <input id='lastname-input' type="text" class="form-control" id="recipient-lastname" name="lastname">
             </div>
             <div id="add-contacts-container" class="mb-3">
             </div>
@@ -177,7 +175,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary">Сохранить</button>
+          <button type="button" class="btn btn-primary form-save-button">Сохранить</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
         </div>
       </div>
@@ -189,8 +187,9 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.min.js"
     integrity="sha384-kjU+l4N0Yf4ZOJErLsIcvOU2qSb74wXpOhqTvwVx3OElZRweTnQ6d31fXEoRD1Jy"
     crossorigin="anonymous"></script>
-  <script defer src="./js/script.js"></script>
-  <script defer src="./js/libs.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/script.js"></script>
+  <script src="./js/libs.js"></script>
 </body>
 
 </html>
