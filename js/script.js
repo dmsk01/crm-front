@@ -160,51 +160,70 @@
     const created = convertISOTime(createdAt);
     const updated = convertISOTime(updatedAt);
 
-    const baseInfoTemplate = `
-        <td>
-         ${id}
-        </td>
-        <td>
-          ${surname} ${name} ${lastName}
-        </td>
-        <td>
-          ${created.day}.${created.month}.${created.year}<span class="ms-2">${created.hours}:${created.minutes}</span>
-        </td>
-        <td>
-        ${updated.day}.${updated.month}.${updated.year}<span class="ms-2">${updated.hours}:${updated.minutes}</span>
-        </td>
-        <td>
-          <ul class="d-flex justify-content-start ps-0 mb-0 contacts-list">
-            ${contactItems}
-          </ul>
-        </td>
-        <td>
-          <button class='button-change'>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.7">
-                <path
-                  d="M2 11.5V14H4.5L11.8733 6.62662L9.37333 4.12662L2 11.5ZM13.8067 4.69329C14.0667 4.43329 14.0667 4.01329 13.8067 3.75329L12.2467 2.19329C11.9867 1.93329 11.5667 1.93329 11.3067 2.19329L10.0867 3.41329L12.5867 5.91329L13.8067 4.69329V4.69329Z"
-                  fill="#9873FF" />
-              </g>
-            </svg>
-            <span>Изменить</span>
-          </button>
-        </td>
-        <td>
-          <button class='button-delete'>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g opacity="0.7">
-                <path
-                  d="M8 2C4.682 2 2 4.682 2 8C2 11.318 4.682 14 8 14C11.318 14 14 11.318 14 8C14 4.682 11.318 2 8 2ZM8 12.8C5.354 12.8 3.2 10.646 3.2 8C3.2 5.354 5.354 3.2 8 3.2C10.646 3.2 12.8 5.354 12.8 8C12.8 10.646 10.646 12.8 8 12.8ZM10.154 5L8 7.154L5.846 5L5 5.846L7.154 8L5 10.154L5.846 11L8 8.846L10.154 11L11 10.154L8.846 8L11 5.846L10.154 5Z"
-                  fill="#F06A4D" />
-              </g>
-            </svg>
-            <span>Удалить</span>
-          </button>
-        </td>
-        `;
+    const idCell = document.createElement("td");
+    idCell.innerText = id;
+    tableRow.appendChild(idCell);
 
-    tableRow.innerHTML = baseInfoTemplate;
+    const nameCell = document.createElement("td");
+    nameCell.innerText = `${surname} ${name} ${lastName}`;
+    tableRow.appendChild(nameCell);
+
+    const createdCell = document.createElement("td");
+    createdCell.innerHTML = `${created.day}.${created.month}.${created.year}<span class="ms-2">${created.hours}:${created.minutes}</span>`;
+    tableRow.appendChild(createdCell);
+
+    const updatedCell = document.createElement("td");
+    updatedCell.innerHTML = `${updated.day}.${updated.month}.${updated.year}<span class="ms-2">${updated.hours}:${updated.minutes}</span>`;
+    tableRow.appendChild(updatedCell);
+
+    const contactsCell = document.createElement("td");
+    const contactsList = document.createElement("ul");
+    contactsList.classList.add(
+      "d-flex",
+      "justify-content-start",
+      "ps-0",
+      "mb-0",
+      "contacts-list"
+    );
+    contactsList.innerHTML = contactItems;
+    contactsCell.appendChild(contactsList);
+    tableRow.appendChild(contactsCell);
+
+    const deleteCell = document.createElement("td");
+    const deleteButton = document.createElement("button");
+    deleteButton.setAttribute("type", "button");
+    deleteButton.classList.add("button-delete");
+    deleteButton.innerHTML = `
+      <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
+        <use xlink:href="./img/sprite.svg#edit">
+        </use>
+      </svg>
+      <span>Изменить</span>
+    `;
+    deleteCell.appendChild(deleteButton);
+    tableRow.appendChild(deleteCell);
+
+    const editCell = document.createElement("td");
+    const editButton = document.createElement("button");
+    editButton.setAttribute("type", "button");
+    editButton.classList.add("button-edit");
+    editButton.innerHTML = `
+      <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
+        <use xlink:href="./img/sprite.svg#delete">
+        </use>
+      </svg>
+      <span>Удалить</span>
+    `;
+    
+    editCell.appendChild(editButton);
+    tableRow.appendChild(editCell);
+
+    deleteButton.addEventListener("click", (e) => {
+      console.log("delete client", surname, name);
+    });
+    editButton.addEventListener("click", (e) => {
+      console.log("edit client", surname, name);
+    });
     tableContainer.appendChild(tableRow);
   }
 
