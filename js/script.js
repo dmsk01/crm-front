@@ -38,20 +38,58 @@
       method: "DELETE",
     });
 
-    if (response.status === 404)
+    if (response.status === 404) {
       console.log("Something went wrong. Can't find the record.");
-    const data = await response.json().then((data) => data);
+    }
+    data = await response.json().then((data) => data);
     return data;
   }
 
   async function drawTable() {
+    const tableContainer = document.querySelector(".table-body");
+    tableContainer.innerHTML = "";
     const usersList = await getClients("http://localhost:3000/api/clients");
-    if (usersList.length) {
-      usersList.forEach((user) => {
-        createTalbleLine(user);
+
+    usersList.forEach((user) => {
+      const clientLineElement = createTalbleLine(user);
+      tableContainer.appendChild(clientLineElement);
+    });
+  }
+
+  async function onClientSave() {
+    const form = document.querySelector(".modal-form");
+    const formData = Object.fromEntries(new FormData(form).entries());
+    const formContacts = form.querySelectorAll("div.contact-line");
+    const clientContacts = [];
+    if (formContacts.length > 0) {
+      formContacts.forEach((contact) => {
+        const [select, input] = Array.from(contact.children);
+        const type = select.value;
+        const value = input.value;
+        clientContacts.push({ type, value });
       });
     }
+
+    await addClient("http://localhost:3000/api/clients", {
+      ...formData,
+      contacts: clientContacts,
+    });
+
+    form.reset();
+
+    drawTable();
   }
+
+  const saveButton = document.querySelector(".form-save-button");
+  saveButton.addEventListener("click", onClientSave);
+
+  document
+    .querySelector(".table-add-contact")
+    .addEventListener("click", (e) => {
+      e.stopImmediatePropagation();
+      const contact = createContact();
+      document.querySelector("#add-contacts-container").appendChild(contact);
+    });
 
   function convertISOTime(isoDate) {
     const date = new Date(isoDate);
@@ -69,41 +107,54 @@
     };
   }
 
-  function createSocialLinks(contacts) {
-    let contactsList = "";
-    for (let contact of contacts) {
-      let id;
-      const { type, value } = contact;
+  function createSocialLinksList(contacts) {
+    const socialList = document.createElement("ul");
 
-      switch (type) {
-        case "Телефон":
-          id = "phone";
-          break;
-        case "Email":
-          id = "mail";
-          break;
-        case "Facebook":
-          id = "fb";
-          break;
-        case "В контакте":
-          id = "vk";
-          break;
-        default:
-          id = "contact";
-      }
+    socialList.classList.add(
+      "d-flex",
+      "justify-content-start",
+      "ps-0",
+      "mb-0",
+      "contacts-list"
+    );
 
-      const template = `
-          <li class="item-body__social-link social-link">
+    if (Array.isArray(contacts)) {
+      for (let contact of contacts) {
+        const { type, value } = contact;
+        const socialLink = document.createElement("li");
+        socialLink.classList.add("social-link");
+        let id;
+
+        switch (type) {
+          case "Телефон":
+            id = "phone";
+            break;
+          case "Email":
+            id = "mail";
+            break;
+          case "Facebook":
+            id = "fb";
+            break;
+          case "В контакте":
+            id = "vk";
+            break;
+          default:
+            id = "contact";
+        }
+
+        const template = `
             <a href="${value}" target="_blank" title="${type}: ${value}" data-bs-toggle="tooltip" data-bs-placement="top">
               <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
                 <use xlink:href="./img/sprite.svg#${id}"></use>
               </svg>
             </a>
-          </li>
-        `;
-      contactsList += template;
+          `;
+        socialLink.innerHTML = template;
+        socialList.appendChild(socialLink);
+      }
     }
-    return contactsList;
+
+    return socialList;
   }
 
   function createContact() {
@@ -155,13 +206,11 @@
   }
 
   function createTalbleLine(user) {
-    const tableContainer = document.querySelector(".table-body");
     const tableRow = document.createElement("tr");
     tableRow.classList.add("align-middle");
 
     const { contacts, id, createdAt, updatedAt, name, surname, lastName } =
       user;
-    const contactItems = createSocialLinks(contacts);
     const created = convertISOTime(createdAt);
     const updated = convertISOTime(updatedAt);
 
@@ -182,16 +231,9 @@
     tableRow.appendChild(updatedCell);
 
     const contactsCell = document.createElement("td");
-    const contactsList = document.createElement("ul");
-    contactsList.classList.add(
-      "d-flex",
-      "justify-content-start",
-      "ps-0",
-      "mb-0",
-      "contacts-list"
-    );
-    contactsList.innerHTML = contactItems;
-    contactsCell.appendChild(contactsList);
+    const contactsSocialList = createSocialLinksList(contacts);
+
+    contactsCell.appendChild(contactsSocialList);
     tableRow.appendChild(contactsCell);
 
     const deleteCell = document.createElement("td");
@@ -200,10 +242,10 @@
     deleteButton.classList.add("button-delete");
     deleteButton.innerHTML = `
       <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
-        <use xlink:href="./img/sprite.svg#edit">
+        <use xlink:href="./img/sprite.svg#delete">
         </use>
       </svg>
-      <span>Изменить</span>
+      <span>Удалить</span>
     `;
     deleteCell.appendChild(deleteButton);
     tableRow.appendChild(deleteCell);
@@ -214,52 +256,29 @@
     editButton.classList.add("button-edit");
     editButton.innerHTML = `
       <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
-        <use xlink:href="./img/sprite.svg#delete">
+        <use xlink:href="./img/sprite.svg#edit">
         </use>
       </svg>
-      <span>Удалить</span>
+      <span>Изменить</span>
     `;
 
     editCell.appendChild(editButton);
+
     tableRow.appendChild(editCell);
 
-    deleteButton.addEventListener("click", (e) => {
-      console.log("delete client", surname, name);
+    deleteButton.addEventListener("click", async (e) => {
+      if (confirm("Вы уверены, что хотите удалить пользователя?")) {
+        await removeClient("http://localhost:3000/api/clients", id);
+        e.target.closest("tr").remove();
+        drawTable();
+      }
     });
     editButton.addEventListener("click", (e) => {
       console.log("edit client", surname, name);
     });
-    tableContainer.appendChild(tableRow);
+
+    return tableRow;
   }
-
-  function onClientSave() {
-    const form = document.querySelector(".modal-form");
-    const data = Object.fromEntries(new FormData(form).entries());
-    const formContacts = form.querySelectorAll("div.contact-line");
-    const clientContacts = [];
-    formContacts.forEach((contact) => {
-      const [select, input] = Array.from(contact.children);
-      const type = select.value;
-      const value = input.value;
-      clientContacts.push({ type, value });
-    });
-
-    const response = addClient('http://localhost:3000/api/clients',{ ...data, contacts:clientContacts });
-    form.reset();
-    
-    drawTable();
-  }
-
-  const saveButton = document.querySelector(".form-save-button");
-  saveButton.addEventListener("click", onClientSave);
-
-  document
-    .querySelector(".table-add-contact")
-    .addEventListener("click", (e) => {
-      e.stopImmediatePropagation();
-      const contact = createContact();
-      document.querySelector("#add-contacts-container").appendChild(contact);
-    });
 
   drawTable();
 })();
