@@ -140,11 +140,16 @@
         <option value="Email">Email</option>
         <option value="Facebook">Facebook</option>
         <option value="В контакте">В контакте</option>
+        <option value="Другое">Другое</option>
       </select>
     `;
     contactLine.innerHTML = select;
     contactLine.appendChild(input);
     contactLine.appendChild(deleteButton);
+
+    deleteButton.addEventListener("click", (e) => {
+      e.target.closest("div.contact-line").remove();
+    });
 
     return contactLine;
   }
@@ -214,7 +219,7 @@
       </svg>
       <span>Удалить</span>
     `;
-    
+
     editCell.appendChild(editButton);
     tableRow.appendChild(editCell);
 
@@ -230,7 +235,19 @@
   function onClientSave() {
     const form = document.querySelector(".modal-form");
     const data = Object.fromEntries(new FormData(form).entries());
-    console.log(data);
+    const formContacts = form.querySelectorAll("div.contact-line");
+    const clientContacts = [];
+    formContacts.forEach((contact) => {
+      const [select, input] = Array.from(contact.children);
+      const type = select.value;
+      const value = input.value;
+      clientContacts.push({ type, value });
+    });
+
+    const response = addClient('http://localhost:3000/api/clients',{ ...data, contacts:clientContacts });
+    form.reset();
+    
+    drawTable();
   }
 
   const saveButton = document.querySelector(".form-save-button");
