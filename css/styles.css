@@ -1,5 +1,5 @@
 :root {
-  --primaryColor: #608ffc;
+  --primaryColor: #0d6efd;
   --redColor: #f06a4d;
   --lightGreyColor: #b0b0b0;
   --darkGreyColor: #333;
@@ -31,8 +31,7 @@ button {
   width: 100%;
   min-height: 90px;
   background: #fff;
-  box-shadow: 0px 9.03012px 27.0904px rgba(176, 190, 197, 0.32),
-    0px 3.38629px 5.64383px rgba(176, 190, 197, 0.32);
+  box-shadow: 0px 9.03012px 27.0904px rgba(176, 190, 197, 0.32), 0px 3.38629px 5.64383px rgba(176, 190, 197, 0.32);
 }
 
 .header__row {
@@ -79,6 +78,10 @@ button {
 
 .contacts-list > *:not(:last-child) {
   margin-right: 7px;
+}
+
+th[data-prop] {
+  cursor: pointer;
 }
 
 .table-footer {
