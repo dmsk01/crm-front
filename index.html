@@ -1,131 +1,143 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="css/null.css" />
-    <link rel="stylesheet" href="css/form.css" />
-    <link rel="stylesheet" href="css/styles.css" />
-    <title>CRM</title>
-  </head>
 
-  <body>
-    <header>
-      <nav class="navbar navbar-dark bg-dark">
-        <div class="container justify-content-start">
-          <a class="navbar-brand logo">CRM</a>
-          <form id="search-form" class="d-flex" role="search">
-            <input id="search-input" class="form-control" type="search" placeholder="Search" aria-label="Search" />
-          </form>
-          <div class="navbar-notfications flex-grow-1 d-flex justify-content-end">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#fff" class="bi bi-bell" viewBox="0 0 16 16">
-              <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z" />
-            </svg>
-          </div>
-        </div>
-      </nav>
-    </header>
-    <main class="pt-5">
-      <div class="container">
-        <h1 class="title mb-5">Клиенты</h1>
-        <div class="table-responsive">
-          <table class="table table-hover table-main">
-            <thead class="table-main__head head-table">
-              <tr id="table-head-row" class="head-table__row">
-                <th id="id-column" class="head-table__item item-head" data-prop="id">
-                  <span class="item-head__text">ID</span>
-                  <button class="item-head__button">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10 6L9.295 5.295L6.5 8.085L6.5 2H5.5L5.5 8.085L2.71 5.29L2 6L6 10L10 6Z" fill="#9873FF" />
-                    </svg>
-                  </button>
-                </th>
-                <th id="fullname-column" class="head-table__item item-head" data-prop="surname">
-                  <span class="item-head__text">Фамилия Имя Отчество</span>
-                  <button class="item-head__button">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10 6L9.295 5.295L6.5 8.085L6.5 2H5.5L5.5 8.085L2.71 5.29L2 6L6 10L10 6Z" fill="#9873FF" />
-                    </svg>
-                    А-Я
-                  </button>
-                </th>
-                <th id="datetime-column" class="head-table__item item-head" data-prop="createdAt">
-                  <span class="item-head__text">Дата и время создания</span>
-                  <button class="item-head__button">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10 6L9.295 5.295L6.5 8.085L6.5 2H5.5L5.5 8.085L2.71 5.29L2 6L6 10L10 6Z" fill="#9873FF" />
-                    </svg>
-                  </button>
-                </th>
-                <th class="head-table__item item-head">Последние изменения</th>
-                <th class="head-table__item item-head">Контакты</th>
-                <th class="head-table__item item-head" colspan="2">Действия</th>
-              </tr>
-            </thead>
-            <tbody id="table-body" class="table-main__body table-body"></tbody>
-          </table>
-          <div class="table-footer">
-            <button type="button" class="table-add-person btn btn-outline-primary d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#add-person-modal">
-              <svg width="23" height="16" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14.5 8C16.71 8 18.5 6.21 18.5 4C18.5 1.79 16.71 0 14.5 0C12.29 0 10.5 1.79 10.5 4C10.5 6.21 12.29 8 14.5 8ZM5.5 6V3H3.5V6H0.5V8H3.5V11H5.5V8H8.5V6H5.5ZM14.5 10C11.83 10 6.5 11.34 6.5 14V16H22.5V14C22.5 11.34 17.17 10 14.5 10Z" fill="#0d6efd" />
-              </svg>
-              <span class="ms-2">Добавить клиента</span>
-            </button>
-          </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="css/null.css" />
+  <link rel="stylesheet" href="css/form.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <title>CRM</title>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container justify-content-start">
+        <a class="navbar-brand logo">CRM</a>
+        <form id="search-form" class="d-flex" role="search">
+          <input id="search-input" class="form-control" type="search" placeholder="Search" aria-label="Search" />
+        </form>
+        <div class="navbar-notfications flex-grow-1 d-flex justify-content-end">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#fff" class="bi bi-bell"
+            viewBox="0 0 16 16">
+            <path
+              d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z" />
+          </svg>
         </div>
       </div>
-    </main>
-    <div class="modal fade" id="add-person-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Новый клиент</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form class="modal-form" name="modal-form">
-              <div class="mb-3">
-                <label for="recipient-name" class="col-form-label">Имя:</label>
-                <input id="name-input" type="text" class="form-control" id="recipient-name" name="name" />
-              </div>
-              <div class="mb-3">
-                <label for="recipient-surname" class="col-form-label">Фамилия:</label>
-                <input id="surname-input" type="text" class="form-control" id="recipient-surname" name="surname" />
-              </div>
-              <div class="mb-3">
-                <label for="recipient-lastname" class="col-form-label">Отчество:</label>
-                <input id="lastname-input" type="text" class="form-control" id="recipient-lastname" name="lastName" />
-              </div>
-              <div id="add-contacts-container" class="mb-3"></div>
-              <div class="mb-3">
-                <button type="button" class="table-add-contact btn btn-outline-primary d-inline-flex align-items-center">
-                  <svg id="plus" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M7.99998 4.66683C7.63331 4.66683 7.33331 4.96683 7.33331 5.3335V7.3335H5.33331C4.96665 7.3335 4.66665 7.6335 4.66665 8.00016C4.66665 8.36683 4.96665 8.66683 5.33331 8.66683H7.33331V10.6668C7.33331 11.0335 7.63331 11.3335 7.99998 11.3335C8.36665 11.3335 8.66665 11.0335 8.66665 10.6668V8.66683H10.6666C11.0333 8.66683 11.3333 8.36683 11.3333 8.00016C11.3333 7.6335 11.0333 7.3335 10.6666 7.3335H8.66665V5.3335C8.66665 4.96683 8.36665 4.66683 7.99998 4.66683ZM7.99998 1.3335C4.31998 1.3335 1.33331 4.32016 1.33331 8.00016C1.33331 11.6802 4.31998 14.6668 7.99998 14.6668C11.68 14.6668 14.6666 11.6802 14.6666 8.00016C14.6666 4.32016 11.68 1.3335 7.99998 1.3335ZM7.99998 13.3335C5.05998 13.3335 2.66665 10.9402 2.66665 8.00016C2.66665 5.06016 5.05998 2.66683 7.99998 2.66683C10.94 2.66683 13.3333 5.06016 13.3333 8.00016C13.3333 10.9402 10.94 13.3335 7.99998 13.3335Z"
-                      fill="#0d6efd"
-                    />
+    </nav>
+  </header>
+  <main class="pt-5">
+    <div class="container">
+      <h1 class="title mb-5">Клиенты</h1>
+      <div class="table-responsive">
+        <table class="table table-hover table-main">
+          <thead class="table-main__head head-table">
+            <tr id="table-head-row" class="head-table__row">
+              <th id="id-column" class="head-table__item item-head" data-prop="id" data-straight="true">
+                <span class="item-head__text">ID</span>
+                <button class="item-head__button">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 6L9.295 5.295L6.5 8.085L6.5 2H5.5L5.5 8.085L2.71 5.29L2 6L6 10L10 6Z" fill="#9873FF" />
                   </svg>
-                  <span class="ms-2">Добавить контакт</span>
                 </button>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary form-save-button" data-bs-dismiss="modal">Сохранить</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          </div>
+              </th>
+              <th id="fullname-column" class="head-table__item item-head" data-prop="surname" data-straight="true">
+                <span class="item-head__text">Фамилия Имя Отчество</span>
+                <button class="item-head__button">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 6L9.295 5.295L6.5 8.085L6.5 2H5.5L5.5 8.085L2.71 5.29L2 6L6 10L10 6Z" fill="#9873FF" />
+                  </svg>
+                  А-Я
+                </button>
+              </th>
+              <th id="datetime-column" class="head-table__item item-head" data-prop="createdAt" data-straight="true">
+                <span class="item-head__text">Дата и время создания</span>
+                <button class="item-head__button">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 6L9.295 5.295L6.5 8.085L6.5 2H5.5L5.5 8.085L2.71 5.29L2 6L6 10L10 6Z" fill="#9873FF" />
+                  </svg>
+                </button>
+              </th>
+              <th class="head-table__item item-head">Последние изменения</th>
+              <th class="head-table__item item-head">Контакты</th>
+              <th class="head-table__item item-head" colspan="2">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="table-main__body table-body"></tbody>
+        </table>
+        <div class="table-footer">
+          <button type="button" class="table-add-person btn btn-outline-primary d-inline-flex align-items-center"
+            data-bs-toggle="modal" data-bs-target="#add-person-modal">
+            <svg width="23" height="16" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M14.5 8C16.71 8 18.5 6.21 18.5 4C18.5 1.79 16.71 0 14.5 0C12.29 0 10.5 1.79 10.5 4C10.5 6.21 12.29 8 14.5 8ZM5.5 6V3H3.5V6H0.5V8H3.5V11H5.5V8H8.5V6H5.5ZM14.5 10C11.83 10 6.5 11.34 6.5 14V16H22.5V14C22.5 11.34 17.17 10 14.5 10Z"
+                fill="#0d6efd" />
+            </svg>
+            <span class="ms-2">Добавить клиента</span>
+          </button>
         </div>
       </div>
     </div>
-    <!-- Scrips section -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-kjU+l4N0Yf4ZOJErLsIcvOU2qSb74wXpOhqTvwVx3OElZRweTnQ6d31fXEoRD1Jy" crossorigin="anonymous"></script>
-    <script defer src="./js/utils.js"></script>
-    <script defer src="./js/script.js"></script>
-    <script defer src="./js/libs.js"></script>
-  </body>
+  </main>
+  <div class="modal fade" id="add-person-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Новый клиент</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form class="modal-form" name="modal-form">
+            <div class="mb-3">
+              <label for="recipient-name" class="col-form-label">Имя:</label>
+              <input id="name-input" type="text" class="form-control" id="recipient-name" name="name" />
+            </div>
+            <div class="mb-3">
+              <label for="recipient-surname" class="col-form-label">Фамилия:</label>
+              <input id="surname-input" type="text" class="form-control" id="recipient-surname" name="surname" />
+            </div>
+            <div class="mb-3">
+              <label for="recipient-lastname" class="col-form-label">Отчество:</label>
+              <input id="lastname-input" type="text" class="form-control" id="recipient-lastname" name="lastName" />
+            </div>
+            <div id="add-contacts-container" class="mb-3"></div>
+            <div class="mb-3">
+              <button type="button" class="table-add-contact btn btn-outline-primary d-inline-flex align-items-center">
+                <svg id="plus" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M7.99998 4.66683C7.63331 4.66683 7.33331 4.96683 7.33331 5.3335V7.3335H5.33331C4.96665 7.3335 4.66665 7.6335 4.66665 8.00016C4.66665 8.36683 4.96665 8.66683 5.33331 8.66683H7.33331V10.6668C7.33331 11.0335 7.63331 11.3335 7.99998 11.3335C8.36665 11.3335 8.66665 11.0335 8.66665 10.6668V8.66683H10.6666C11.0333 8.66683 11.3333 8.36683 11.3333 8.00016C11.3333 7.6335 11.0333 7.3335 10.6666 7.3335H8.66665V5.3335C8.66665 4.96683 8.36665 4.66683 7.99998 4.66683ZM7.99998 1.3335C4.31998 1.3335 1.33331 4.32016 1.33331 8.00016C1.33331 11.6802 4.31998 14.6668 7.99998 14.6668C11.68 14.6668 14.6666 11.6802 14.6666 8.00016C14.6666 4.32016 11.68 1.3335 7.99998 1.3335ZM7.99998 13.3335C5.05998 13.3335 2.66665 10.9402 2.66665 8.00016C2.66665 5.06016 5.05998 2.66683 7.99998 2.66683C10.94 2.66683 13.3333 5.06016 13.3333 8.00016C13.3333 10.9402 10.94 13.3335 7.99998 13.3335Z"
+                    fill="#0d6efd" />
+                </svg>
+                <span class="ms-2">Добавить контакт</span>
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary form-save-button" data-bs-dismiss="modal">Сохранить</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Scrips section -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js"
+    integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.min.js"
+    integrity="sha384-kjU+l4N0Yf4ZOJErLsIcvOU2qSb74wXpOhqTvwVx3OElZRweTnQ6d31fXEoRD1Jy"
+    crossorigin="anonymous"></script>
+  <script defer src="./js/utils.js"></script>
+  <script defer src="./js/script.js"></script>
+  <script defer src="./js/libs.js"></script>
+</body>
+
 </html>

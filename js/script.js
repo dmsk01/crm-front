@@ -86,7 +86,13 @@
   function createSocialLinksList(contacts) {
     const socialList = document.createElement("ul");
 
-    socialList.classList.add("d-flex", "justify-content-start", "ps-0", "mb-0", "contacts-list");
+    socialList.classList.add(
+      "d-flex",
+      "justify-content-start",
+      "ps-0",
+      "mb-0",
+      "contacts-list"
+    );
 
     if (Array.isArray(contacts)) {
       for (let contact of contacts) {
@@ -129,12 +135,23 @@
 
   function createFormContact(contact = {}) {
     const contactLine = document.createElement("div");
-    contactLine.classList.add("d-flex", "align-content-center", "mb-3", "contact-line");
+    contactLine.classList.add(
+      "d-flex",
+      "align-content-center",
+      "mb-3",
+      "contact-line"
+    );
     const input = document.createElement("input");
     input.classList.add("form-control", "contact-input");
     input.value = contact.value || "";
 
-    const selectOptions = ["Телефон", "Email", "Facebook", "В контакте", "Другое"];
+    const selectOptions = [
+      "Телефон",
+      "Email",
+      "Facebook",
+      "В контакте",
+      "Другое",
+    ];
 
     const select = document.createElement("select");
     select.classList.add("form-select", "form-select-sm", "contact-select");
@@ -144,14 +161,24 @@
       const optionElement = document.createElement("option");
       optionElement.innerText = option;
       optionElement.setAttribute("value", option);
-      contact.type === option ? optionElement.setAttribute("selected", true) : null;
+      contact.type === option
+        ? optionElement.setAttribute("selected", true)
+        : null;
       fragment.appendChild(optionElement);
     });
 
     select.appendChild(fragment);
 
     const deleteButton = document.createElement("button");
-    deleteButton.classList.add("d-flex", "justify-content-center", "align-items-center", "p-2", "btn", "btn-outline-danger", "contact-delete-button");
+    deleteButton.classList.add(
+      "d-flex",
+      "justify-content-center",
+      "align-items-center",
+      "p-2",
+      "btn",
+      "btn-outline-danger",
+      "contact-delete-button"
+    );
     deleteButton.innerHTML = `
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g>
@@ -181,7 +208,8 @@
   }
 
   function createTalbleLine(user, { onDelete, onEdit }) {
-    const { contacts, id, createdAt, updatedAt, name, surname, lastName } = user;
+    const { contacts, id, createdAt, updatedAt, name, surname, lastName } =
+      user;
 
     const tableRow = document.createElement("tr");
     tableRow.classList.add("align-middle");
@@ -261,22 +289,30 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Изменить данные <span>${id && id}</span></h5>
+              <h5 class="modal-title" id="exampleModalLabel">Изменить данные <span>${
+                id && id
+              }</span></h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <form class="modal-form">
                 <div class="mb-3">
                   <label for="recipient-name" class="col-form-label">Имя:</label>
-                  <input id='name-input' type="text" class="form-control" id="recipient-name" name="name" value="${name && name}">
+                  <input id='name-input' type="text" class="form-control" id="recipient-name" name="name" value="${
+                    name && name
+                  }">
                 </div>
                 <div class="mb-3">
                   <label for="recipient-surname" class="col-form-label">Фамилия:</label>
-                  <input id='surname-input' type="text" class="form-control" id="recipient-surname" name="surname" value="${surname && surname}">
+                  <input id='surname-input' type="text" class="form-control" id="recipient-surname" name="surname" value="${
+                    surname && surname
+                  }">
                 </div>
                 <div class="mb-3">
                   <label for="recipient-lastname" class="col-form-label">Отчество:</label>
-                  <input id='lastname-input' type="text" class="form-control" id="recipient-lastname" name="lastName" value="${lastName && lastName}">
+                  <input id='lastname-input' type="text" class="form-control" id="recipient-lastname" name="lastName" value="${
+                    lastName && lastName
+                  }">
                 </div>
                 <div id="edit-contacts-container" class="mb-3">
                 </div>
@@ -305,7 +341,9 @@
     document.querySelector("main").insertAdjacentHTML("afterend", template);
 
     const contactsElementsFromDB = createFormContacts(contacts);
-    const formContactsContainer = document.getElementById("edit-contacts-container");
+    const formContactsContainer = document.getElementById(
+      "edit-contacts-container"
+    );
     formContactsContainer.appendChild(contactsElementsFromDB);
 
     const addContactButton = document.querySelector(".table-add-contact");
@@ -315,7 +353,9 @@
       document.querySelector("#add-contacts-container").appendChild(contact);
     });
 
-    const editModal = new bootstrap.Modal(document.getElementById("person-modal"));
+    const editModal = new bootstrap.Modal(
+      document.getElementById("person-modal")
+    );
     editModal.show();
 
     return template;
@@ -375,13 +415,16 @@
   const onInputChange = debounce(searchClient, 1000);
 
   function handleSearchFormChange() {
-    document.getElementById("search-input").addEventListener("input", onInputChange);
+    document
+      .getElementById("search-input")
+      .addEventListener("input", onInputChange);
   }
 
   clientsTableTh.forEach((th) => {
     th.addEventListener("click", function () {
       sortProp = this.dataset.prop;
       isSortDirectionReverse = !isSortDirectionReverse;
+      this.classList.toggle("reverse");
       initApp();
     });
   });
@@ -396,10 +439,16 @@
     },
   };
 
-  async function render() {
-    clearContainer(tableContainer);
+  addContactButton.addEventListener("click", (e) => {
+    e.stopImmediatePropagation();
+    const contact = createFormContact();
+    document.querySelector("#add-contacts-container").appendChild(contact);
+  });
 
-    const usersListFromAPI = await getClients("http://localhost:3000/api/clients");
+  saveButton.addEventListener("click", onClientSave);
+
+  function render(usersListFromAPI) {
+    clearContainer(tableContainer);
 
     let usersList = [...usersListFromAPI];
 
@@ -410,18 +459,12 @@
     });
   }
 
-  function initApp() {
-    render();
-
+  async function initApp() {
+    const usersListFromAPI = await getClients(
+      "http://localhost:3000/api/clients"
+    );
+    render(usersListFromAPI);
     handleSearchFormChange();
-
-    addContactButton.addEventListener("click", (e) => {
-      e.stopImmediatePropagation();
-      const contact = createFormContact();
-      document.querySelector("#add-contacts-container").appendChild(contact);
-    });
-
-    saveButton.addEventListener("click", onClientSave);
   }
 
   initApp();
