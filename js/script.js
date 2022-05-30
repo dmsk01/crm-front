@@ -58,8 +58,7 @@
     return data;
   }
 
-  async function onClientSave() {
-    const form = document.forms["modal-form"];
+  function collectDataFromForm(form) {
     const formData = Object.fromEntries(new FormData(form).entries());
 
     const formContacts = form.querySelectorAll("div.contact-line");
@@ -73,10 +72,17 @@
       });
     }
 
-    await addClient("http://localhost:3000/api/clients", {
+    return {
       ...formData,
       contacts: clientContacts,
-    });
+    };
+  }
+
+  async function onClientSave(form) {
+    await addClient(
+      "http://localhost:3000/api/clients",
+      collectDataFromForm(form)
+    );
 
     form.reset();
 
@@ -295,7 +301,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form class="modal-form">
+              <form class="modal-form" name='person-modal'>
                 <div class="mb-3">
                   <label for="recipient-name" class="col-form-label">Имя:</label>
                   <input id='name-input' type="text" class="form-control" id="recipient-name" name="name" value="${
@@ -350,7 +356,7 @@
     addContactButton.addEventListener("click", (e) => {
       e.stopImmediatePropagation();
       const contact = createFormContact();
-      document.querySelector("#add-contacts-container").appendChild(contact);
+      document.querySelector("#edit-contacts-container").appendChild(contact);
     });
 
     const editModal = new bootstrap.Modal(
@@ -432,6 +438,20 @@
   const userHandlers = {
     onEdit(user) {
       createModal(user);
+      const saveButton = document.querySelector(".form-save-button");
+      saveButton.addEventListener("click", async () => {
+        const form = document.forms["person-modal"];
+        const formInfo = collectDataFromForm(form);
+        await editClient(
+          "http://localhost:3000/api/clients",
+          user.id,
+          formInfo
+        );
+
+        form.reset();
+
+        initApp();
+      });
     },
     onDelete(e, id) {
       removeClient("http://localhost:3000/api/clients", id);
@@ -445,7 +465,10 @@
     document.querySelector("#add-contacts-container").appendChild(contact);
   });
 
-  saveButton.addEventListener("click", onClientSave);
+  saveButton.addEventListener("click", () => {
+    const form = document.forms["modal-form"];
+    onClientSave(form);
+  });
 
   function render(usersListFromAPI) {
     clearContainer(tableContainer);
