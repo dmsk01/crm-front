@@ -5,6 +5,7 @@
   const saveButton = document.querySelector(".form-save-button");
   let sortProp = "surname";
   let isSortDirectionReverse = false;
+  let usersListFromAPI;
 
   async function getClients(url) {
     const response = await fetch(url);
@@ -147,9 +148,11 @@
       "mb-3",
       "contact-line"
     );
+
     const input = document.createElement("input");
     input.classList.add("form-control", "contact-input");
     input.value = contact.value || "";
+    input.required = true;
 
     const selectOptions = [
       "Телефон",
@@ -174,6 +177,13 @@
     });
 
     select.appendChild(fragment);
+
+    input.type = inputType(select.options[select.selectedIndex].text);
+
+    select.addEventListener("change", () => {
+      const selectValue = select.options[select.selectedIndex].text;
+      input.type = inputType(selectValue);
+    });
 
     const deleteButton = document.createElement("button");
     deleteButton.classList.add(
@@ -211,6 +221,17 @@
       fragment.appendChild(contactElement);
     }
     return fragment;
+  }
+
+  function inputType(inputType) {
+    switch (inputType) {
+      case "Телефон":
+        return "tel";
+      case "Email":
+        return "email";
+      default:
+        return "text";
+    }
   }
 
   function createTalbleLine(user, { onDelete, onEdit }) {
@@ -431,7 +452,8 @@
       sortProp = this.dataset.prop;
       isSortDirectionReverse = !isSortDirectionReverse;
       this.classList.toggle("reverse");
-      initApp();
+      // initApp();
+      render(usersListFromAPI);
     });
   });
 
@@ -483,9 +505,7 @@
   }
 
   async function initApp() {
-    const usersListFromAPI = await getClients(
-      "http://localhost:3000/api/clients"
-    );
+    usersListFromAPI = await getClients("http://localhost:3000/api/clients");
     render(usersListFromAPI);
     handleSearchFormChange();
   }
