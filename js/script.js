@@ -11,6 +11,8 @@ const tableContainer = document.querySelector(".table-body");
 const addContactButton = document.querySelector(".table-add-contact");
 const clientsTableTh = document.querySelectorAll("th[data-prop]");
 const saveButton = document.querySelector(".form-save-button");
+const searchInput = document.getElementById("search-input");
+
 let sortProp = "surname";
 let isSortDirectionReverse = false;
 let usersListFromAPI;
@@ -384,16 +386,29 @@ const sortClients = (clientsList, prop, isReverseOrder = false) => {
   });
 };
 
-function searchClient() {
-  console.log("search with debounce");
+async function searchClient(searchQuery) {
+  const searchResult = await getClientsWithQuery(
+    "http://localhost:3000/api/clients",
+    searchQuery
+  );
+  render(searchResult);
 }
 
 const onInputChange = debounce(searchClient, 1000);
 
 function handleSearchFormChange() {
-  document
-    .getElementById("search-input")
-    .addEventListener("input", onInputChange);
+  searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.trim();
+    if (!query) {
+      initApp();
+    }
+  });
+  document.getElementById("search-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const query = searchInput.value.trim();
+    if (!query) return;
+    onInputChange(query);
+  });
 }
 
 clientsTableTh.forEach((th) => {
@@ -451,7 +466,7 @@ function render(usersListFromAPI) {
 async function initApp() {
   usersListFromAPI = await getClients("http://localhost:3000/api/clients");
   render(usersListFromAPI);
-  handleSearchFormChange();
 }
 
 initApp();
+handleSearchFormChange();

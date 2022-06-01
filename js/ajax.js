@@ -9,7 +9,7 @@ export async function getClients(url) {
 }
 
 export async function getClientsWithQuery(url, search = "") {
-  const response = await fetch(`${url}/search?${search}`);
+  const response = await fetch(`${url}?search=${search}`);
   const user = await response.json().then((data) => data);
   return user;
 }
