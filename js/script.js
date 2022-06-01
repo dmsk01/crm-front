@@ -1,201 +1,157 @@
-(() => {
-  const tableContainer = document.querySelector(".table-body");
-  const addContactButton = document.querySelector(".table-add-contact");
-  const clientsTableTh = document.querySelectorAll("th[data-prop]");
-  const saveButton = document.querySelector(".form-save-button");
-  let sortProp = "surname";
-  let isSortDirectionReverse = false;
-  let usersListFromAPI;
+import {
+  addClient,
+  editClient,
+  getClients,
+  getClientsWithQuery,
+  getClient,
+  removeClient,
+} from "./ajax.js";
 
-  async function getClients(url) {
-    const response = await fetch(url);
-    const users = await response.json().then((data) => data);
-    return users;
-  }
+const tableContainer = document.querySelector(".table-body");
+const addContactButton = document.querySelector(".table-add-contact");
+const clientsTableTh = document.querySelectorAll("th[data-prop]");
+const saveButton = document.querySelector(".form-save-button");
+let sortProp = "surname";
+let isSortDirectionReverse = false;
+let usersListFromAPI;
 
-  async function getClientsWithQuery(url, search = "") {
-    const response = await fetch(`${url}/search?${search}`);
-    const user = await response.json().then((data) => data);
-    return user;
-  }
+function collectDataFromForm(form) {
+  const formData = Object.fromEntries(new FormData(form).entries());
 
-  async function getClient(url, id) {
-    const response = await fetch(`${url}/${id}`);
-    const user = await response.json().then((data) => data);
-    return user;
-  }
-
-  async function addClient(url, payload) {
-    await fetch(url, {
-      method: "POST",
-      body: JSON.stringify(payload),
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const formContacts = form.querySelectorAll("div.contact-line");
+  const clientContacts = [];
+  if (formContacts.length > 0) {
+    formContacts.forEach((contact) => {
+      const [select, input] = Array.from(contact.children);
+      const type = select.value;
+      const value = input.value;
+      clientContacts.push({ type, value });
     });
   }
 
-  async function editClient(url, id, newValue) {
-    const response = await fetch(`${url}/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ ...newValue }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const user = await response.json().then((data) => data);
-    return user;
-  }
+  return {
+    ...formData,
+    contacts: clientContacts,
+  };
+}
 
-  async function removeClient(url, id) {
-    const response = await fetch(`${url}/${id}`, {
-      method: "DELETE",
-    });
+async function onClientSave(form) {
+  await addClient(
+    "http://localhost:3000/api/clients",
+    collectDataFromForm(form)
+  );
 
-    if (response.status === 404) {
-      console.log("Something went wrong. Can't find the record.");
-    }
-    data = await response.json().then((data) => data);
-    return data;
-  }
+  form.reset();
 
-  function collectDataFromForm(form) {
-    const formData = Object.fromEntries(new FormData(form).entries());
+  initApp();
+}
 
-    const formContacts = form.querySelectorAll("div.contact-line");
-    const clientContacts = [];
-    if (formContacts.length > 0) {
-      formContacts.forEach((contact) => {
-        const [select, input] = Array.from(contact.children);
-        const type = select.value;
-        const value = input.value;
-        clientContacts.push({ type, value });
-      });
-    }
+function createSocialLinksList(contacts) {
+  const socialList = document.createElement("ul");
 
-    return {
-      ...formData,
-      contacts: clientContacts,
-    };
-  }
+  socialList.classList.add(
+    "d-flex",
+    "justify-content-start",
+    "ps-0",
+    "mb-0",
+    "contacts-list"
+  );
 
-  async function onClientSave(form) {
-    await addClient(
-      "http://localhost:3000/api/clients",
-      collectDataFromForm(form)
-    );
+  if (Array.isArray(contacts)) {
+    for (let contact of contacts) {
+      const { type, value } = contact;
+      const socialLink = document.createElement("li");
+      socialLink.classList.add("social-link");
+      let id;
 
-    form.reset();
+      switch (type) {
+        case "Телефон":
+          id = "phone";
+          break;
+        case "Email":
+          id = "mail";
+          break;
+        case "Facebook":
+          id = "fb";
+          break;
+        case "В контакте":
+          id = "vk";
+          break;
+        default:
+          id = "contact";
+      }
 
-    initApp();
-  }
-
-  function createSocialLinksList(contacts) {
-    const socialList = document.createElement("ul");
-
-    socialList.classList.add(
-      "d-flex",
-      "justify-content-start",
-      "ps-0",
-      "mb-0",
-      "contacts-list"
-    );
-
-    if (Array.isArray(contacts)) {
-      for (let contact of contacts) {
-        const { type, value } = contact;
-        const socialLink = document.createElement("li");
-        socialLink.classList.add("social-link");
-        let id;
-
-        switch (type) {
-          case "Телефон":
-            id = "phone";
-            break;
-          case "Email":
-            id = "mail";
-            break;
-          case "Facebook":
-            id = "fb";
-            break;
-          case "В контакте":
-            id = "vk";
-            break;
-          default:
-            id = "contact";
-        }
-
-        const template = `
+      const template = `
             <a href="${value}" target="_blank" title="${type}: ${value}" data-bs-toggle="tooltip" data-bs-placement="top">
               <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
                 <use xlink:href="./img/sprite.svg#${id}"></use>
               </svg>
             </a>
           `;
-        socialLink.innerHTML = template;
-        socialList.appendChild(socialLink);
-      }
+      socialLink.innerHTML = template;
+      socialList.appendChild(socialLink);
     }
-
-    return socialList;
   }
 
-  function createFormContact(contact = {}) {
-    const contactLine = document.createElement("div");
-    contactLine.classList.add(
-      "d-flex",
-      "align-content-center",
-      "mb-3",
-      "contact-line"
-    );
+  return socialList;
+}
 
-    const input = document.createElement("input");
-    input.classList.add("form-control", "contact-input");
-    input.value = contact.value || "";
-    input.required = true;
+function createFormContact(contact = {}) {
+  const contactLine = document.createElement("div");
+  contactLine.classList.add(
+    "d-flex",
+    "align-content-center",
+    "mb-3",
+    "contact-line"
+  );
 
-    const selectOptions = [
-      "Телефон",
-      "Email",
-      "Facebook",
-      "В контакте",
-      "Другое",
-    ];
+  const input = document.createElement("input");
+  input.classList.add("form-control", "contact-input");
+  input.value = contact.value || "";
+  input.required = true;
 
-    const select = document.createElement("select");
-    select.classList.add("form-select", "form-select-sm", "contact-select");
+  const selectOptions = [
+    "Телефон",
+    "Email",
+    "Facebook",
+    "В контакте",
+    "Другое",
+  ];
 
-    let fragment = document.createDocumentFragment();
-    selectOptions.forEach((option) => {
-      const optionElement = document.createElement("option");
-      optionElement.innerText = option;
-      optionElement.setAttribute("value", option);
-      contact.type === option
-        ? optionElement.setAttribute("selected", true)
-        : null;
-      fragment.appendChild(optionElement);
-    });
+  const select = document.createElement("select");
+  select.classList.add("form-select", "form-select-sm", "contact-select");
 
-    select.appendChild(fragment);
+  let fragment = document.createDocumentFragment();
+  selectOptions.forEach((option) => {
+    const optionElement = document.createElement("option");
+    optionElement.innerText = option;
+    optionElement.setAttribute("value", option);
+    contact.type === option
+      ? optionElement.setAttribute("selected", true)
+      : null;
+    fragment.appendChild(optionElement);
+  });
 
-    input.type = inputType(select.options[select.selectedIndex].text);
+  select.appendChild(fragment);
 
-    select.addEventListener("change", () => {
-      const selectValue = select.options[select.selectedIndex].text;
-      input.type = inputType(selectValue);
-    });
+  input.type = inputType(select.options[select.selectedIndex].text);
 
-    const deleteButton = document.createElement("button");
-    deleteButton.classList.add(
-      "d-flex",
-      "justify-content-center",
-      "align-items-center",
-      "p-2",
-      "btn",
-      "btn-outline-danger",
-      "contact-delete-button"
-    );
-    deleteButton.innerHTML = `
+  select.addEventListener("change", () => {
+    const selectValue = select.options[select.selectedIndex].text;
+    input.type = inputType(selectValue);
+  });
+
+  const deleteButton = document.createElement("button");
+  deleteButton.classList.add(
+    "d-flex",
+    "justify-content-center",
+    "align-items-center",
+    "p-2",
+    "btn",
+    "btn-outline-danger",
+    "contact-delete-button"
+  );
+  deleteButton.innerHTML = `
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g>
           <path d="M8 2C4.682 2 2 4.682 2 8C2 11.318 4.682 14 8 14C11.318 14 14 11.318 14 8C14 4.682 11.318 2 8 2ZM8 12.8C5.354 12.8 3.2 10.646 3.2 8C3.2 5.354 5.354 3.2 8 3.2C10.646 3.2 12.8 5.354 12.8 8C12.8 10.646 10.646 12.8 8 12.8ZM10.154 5L8 7.154L5.846 5L5 5.846L7.154 8L5 10.154L5.846 11L8 8.846L10.154 11L11 10.154L8.846 8L11 5.846L10.154 5Z" fill="#F06A4D"/>
@@ -203,88 +159,87 @@
       </svg>
     `;
 
-    deleteButton.addEventListener("click", (e) => {
-      e.target.closest("div.contact-line").remove();
-    });
+  deleteButton.addEventListener("click", (e) => {
+    e.target.closest("div.contact-line").remove();
+  });
 
-    contactLine.appendChild(select);
-    contactLine.appendChild(input);
-    contactLine.appendChild(deleteButton);
+  contactLine.appendChild(select);
+  contactLine.appendChild(input);
+  contactLine.appendChild(deleteButton);
 
-    return contactLine;
+  return contactLine;
+}
+
+function createFormContacts(arrOfContacts = []) {
+  let fragment = document.createDocumentFragment();
+  for (let contact of arrOfContacts) {
+    const contactElement = createFormContact(contact);
+    fragment.appendChild(contactElement);
   }
+  return fragment;
+}
 
-  function createFormContacts(arrOfContacts = []) {
-    let fragment = document.createDocumentFragment();
-    for (let contact of arrOfContacts) {
-      const contactElement = createFormContact(contact);
-      fragment.appendChild(contactElement);
-    }
-    return fragment;
+function inputType(inputType) {
+  switch (inputType) {
+    case "Телефон":
+      return "tel";
+    case "Email":
+      return "email";
+    default:
+      return "text";
   }
+}
 
-  function inputType(inputType) {
-    switch (inputType) {
-      case "Телефон":
-        return "tel";
-      case "Email":
-        return "email";
-      default:
-        return "text";
-    }
-  }
+function createTalbleLine(user, { onDelete, onEdit }) {
+  const { contacts, id, createdAt, updatedAt, name, surname, lastName } = user;
 
-  function createTalbleLine(user, { onDelete, onEdit }) {
-    const { contacts, id, createdAt, updatedAt, name, surname, lastName } =
-      user;
+  const tableRow = document.createElement("tr");
+  tableRow.classList.add("align-middle");
 
-    const tableRow = document.createElement("tr");
-    tableRow.classList.add("align-middle");
+  const created = convertTime(createdAt);
+  const updated = convertTime(updatedAt);
 
-    const created = convertTime(createdAt);
-    const updated = convertTime(updatedAt);
+  const idCell = document.createElement("td");
+  idCell.innerText = id;
+  tableRow.appendChild(idCell);
 
-    const idCell = document.createElement("td");
-    idCell.innerText = id;
-    tableRow.appendChild(idCell);
+  const nameCell = document.createElement("td");
+  nameCell.innerText = `${surname} ${name} ${lastName}`;
+  tableRow.appendChild(nameCell);
 
-    const nameCell = document.createElement("td");
-    nameCell.innerText = `${surname} ${name} ${lastName}`;
-    tableRow.appendChild(nameCell);
+  const createdCell = document.createElement("td");
+  createdCell.innerHTML = created;
+  tableRow.appendChild(createdCell);
 
-    const createdCell = document.createElement("td");
-    createdCell.innerHTML = created;
-    tableRow.appendChild(createdCell);
+  const updatedCell = document.createElement("td");
+  updatedCell.innerHTML = updated;
+  tableRow.appendChild(updatedCell);
 
-    const updatedCell = document.createElement("td");
-    updatedCell.innerHTML = updated;
-    tableRow.appendChild(updatedCell);
+  const contactsCell = document.createElement("td");
+  const contactsSocialList = createSocialLinksList(contacts);
 
-    const contactsCell = document.createElement("td");
-    const contactsSocialList = createSocialLinksList(contacts);
+  contactsCell.appendChild(contactsSocialList);
+  tableRow.appendChild(contactsCell);
 
-    contactsCell.appendChild(contactsSocialList);
-    tableRow.appendChild(contactsCell);
-
-    const deleteCell = document.createElement("td");
-    const deleteButton = document.createElement("button");
-    deleteButton.setAttribute("type", "button");
-    deleteButton.classList.add("button-delete");
-    deleteButton.innerHTML = `
+  const deleteCell = document.createElement("td");
+  const deleteButton = document.createElement("button");
+  deleteButton.setAttribute("type", "button");
+  deleteButton.classList.add("button-delete");
+  deleteButton.innerHTML = `
       <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
         <use xlink:href="./img/sprite.svg#delete">
         </use>
       </svg>
       <span>Удалить</span>
     `;
-    deleteCell.appendChild(deleteButton);
-    tableRow.appendChild(deleteCell);
+  deleteCell.appendChild(deleteButton);
+  tableRow.appendChild(deleteCell);
 
-    const editCell = document.createElement("td");
-    const editButton = document.createElement("button");
-    editButton.setAttribute("type", "button");
-    editButton.classList.add("button-edit");
-    editButton.innerHTML = `
+  const editCell = document.createElement("td");
+  const editButton = document.createElement("button");
+  editButton.setAttribute("type", "button");
+  editButton.classList.add("button-edit");
+  editButton.innerHTML = `
       <svg width=" 16" height="16" viewBox="0 0 16 16" fill="none" >
         <use xlink:href="./img/sprite.svg#edit">
         </use>
@@ -292,26 +247,26 @@
       <span>Изменить</span>
     `;
 
-    editCell.appendChild(editButton);
-    tableRow.appendChild(editCell);
+  editCell.appendChild(editButton);
+  tableRow.appendChild(editCell);
 
-    deleteButton.addEventListener("click", (e) => {
-      if (confirm("Вы уверены, что хотите удалить пользователя?")) {
-        onDelete(e, id);
-      }
-    });
+  deleteButton.addEventListener("click", (e) => {
+    if (confirm("Вы уверены, что хотите удалить пользователя?")) {
+      onDelete(e, id);
+    }
+  });
 
-    editButton.addEventListener("click", (e) => {
-      onEdit({ id, name, surname, lastName, contacts });
-    });
+  editButton.addEventListener("click", (e) => {
+    onEdit({ id, name, surname, lastName, contacts });
+  });
 
-    return tableRow;
-  }
+  return tableRow;
+}
 
-  function createModal() {
-    const { id, name, surname, lastName, contacts } = arguments[0];
+function createModal() {
+  const { id, name, surname, lastName, contacts } = arguments[0];
 
-    const template = `
+  const template = `
       <div class="modal fade" id="person-modal" tabindex="-1" aria-labelledby="personModal" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -365,143 +320,138 @@
       </div>
     `;
 
-    document.querySelector("main").insertAdjacentHTML("afterend", template);
+  document.querySelector("main").insertAdjacentHTML("afterend", template);
 
-    const contactsElementsFromDB = createFormContacts(contacts);
-    const formContactsContainer = document.getElementById(
-      "edit-contacts-container"
-    );
-    formContactsContainer.appendChild(contactsElementsFromDB);
+  const contactsElementsFromDB = createFormContacts(contacts);
+  const formContactsContainer = document.getElementById(
+    "edit-contacts-container"
+  );
+  formContactsContainer.appendChild(contactsElementsFromDB);
 
-    const addContactButton = document.querySelector(".table-add-contact");
-    addContactButton.addEventListener("click", (e) => {
-      e.stopImmediatePropagation();
-      const contact = createFormContact();
-      document.querySelector("#edit-contacts-container").appendChild(contact);
-    });
-
-    const editModal = new bootstrap.Modal(
-      document.getElementById("person-modal")
-    );
-    editModal.show();
-
-    return template;
-  }
-
-  function debounce(func, wait, immediate) {
-    let timeout;
-    return function () {
-      const context = this,
-        args = arguments;
-      const later = function () {
-        timeout = null;
-        if (!immediate) func.apply(context, args);
-      };
-      const callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) func.apply(context, args);
-    };
-  }
-
-  function clearContainer(container) {
-    // container.innerHTML = '';
-    let child = container.lastElementChild;
-    while (child) {
-      container.removeChild(child);
-      child = container.lastElementChild;
-    }
-  }
-
-  function convertTime(isoDate) {
-    return new Date(isoDate).toLocaleDateString("ru", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
-  const sortClients = (clientsList, prop, isReverseOrder = false) => {
-    return clientsList.sort((a, b) => {
-      if (!isReverseOrder ? a[prop] < b[prop] : a[prop] > b[prop]) return -1;
-    });
-  };
-
-  function searchClient() {
-    console.log("search with debounce");
-  }
-
-  const onInputChange = debounce(searchClient, 1000);
-
-  function handleSearchFormChange() {
-    document
-      .getElementById("search-input")
-      .addEventListener("input", onInputChange);
-  }
-
-  clientsTableTh.forEach((th) => {
-    th.addEventListener("click", function () {
-      sortProp = this.dataset.prop;
-      isSortDirectionReverse = !isSortDirectionReverse;
-      this.classList.toggle("reverse");
-      render(usersListFromAPI);
-    });
-  });
-
-  const userHandlers = {
-    onEdit(user) {
-      createModal(user);
-      const saveButton = document.querySelector(".form-save-button");
-      saveButton.addEventListener("click", async () => {
-        const form = document.forms["person-modal"];
-        const formInfo = collectDataFromForm(form);
-        await editClient(
-          "http://localhost:3000/api/clients",
-          user.id,
-          formInfo
-        );
-
-        form.reset();
-
-        initApp();
-      });
-    },
-    onDelete(e, id) {
-      removeClient("http://localhost:3000/api/clients", id);
-      e.target.closest("tr").remove();
-    },
-  };
-
+  const addContactButton = document.querySelector(".table-add-contact");
   addContactButton.addEventListener("click", (e) => {
     e.stopImmediatePropagation();
     const contact = createFormContact();
-    document.querySelector("#add-contacts-container").appendChild(contact);
+    document.querySelector("#edit-contacts-container").appendChild(contact);
   });
 
-  saveButton.addEventListener("click", () => {
-    const form = document.forms["modal-form"];
-    onClientSave(form);
-  });
+  const editModal = new bootstrap.Modal(
+    document.getElementById("person-modal")
+  );
+  editModal.show();
 
-  function render(usersListFromAPI) {
-    clearContainer(tableContainer);
+  return template;
+}
 
-    let usersList = [...usersListFromAPI];
+function debounce(func, wait, immediate) {
+  let timeout;
+  return function () {
+    const context = this,
+      args = arguments;
+    const later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
 
-    usersList = sortClients(usersList, sortProp, isSortDirectionReverse);
-
-    usersList.forEach((user) => {
-      tableContainer.appendChild(createTalbleLine(user, userHandlers));
-    });
+function clearContainer(container) {
+  // container.innerHTML = '';
+  let child = container.lastElementChild;
+  while (child) {
+    container.removeChild(child);
+    child = container.lastElementChild;
   }
+}
 
-  async function initApp() {
-    usersListFromAPI = await getClients("http://localhost:3000/api/clients");
+function convertTime(isoDate) {
+  return new Date(isoDate).toLocaleDateString("ru", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+const sortClients = (clientsList, prop, isReverseOrder = false) => {
+  return clientsList.sort((a, b) => {
+    if (!isReverseOrder ? a[prop] < b[prop] : a[prop] > b[prop]) return -1;
+  });
+};
+
+function searchClient() {
+  console.log("search with debounce");
+}
+
+const onInputChange = debounce(searchClient, 1000);
+
+function handleSearchFormChange() {
+  document
+    .getElementById("search-input")
+    .addEventListener("input", onInputChange);
+}
+
+clientsTableTh.forEach((th) => {
+  th.addEventListener("click", function () {
+    sortProp = this.dataset.prop;
+    isSortDirectionReverse = !isSortDirectionReverse;
+    this.classList.toggle("reverse");
     render(usersListFromAPI);
-    handleSearchFormChange();
-  }
+  });
+});
 
-  initApp();
-})();
+const userHandlers = {
+  onEdit(user) {
+    createModal(user);
+    const saveButton = document.querySelector(".form-save-button");
+    saveButton.addEventListener("click", async () => {
+      const form = document.forms["person-modal"];
+      const formInfo = collectDataFromForm(form);
+      await editClient("http://localhost:3000/api/clients", user.id, formInfo);
+
+      form.reset();
+
+      initApp();
+    });
+  },
+  onDelete(e, id) {
+    removeClient("http://localhost:3000/api/clients", id);
+    e.target.closest("tr").remove();
+  },
+};
+
+addContactButton.addEventListener("click", (e) => {
+  e.stopImmediatePropagation();
+  const contact = createFormContact();
+  document.querySelector("#add-contacts-container").appendChild(contact);
+});
+
+saveButton.addEventListener("click", () => {
+  const form = document.forms["modal-form"];
+  onClientSave(form);
+});
+
+function render(usersListFromAPI) {
+  clearContainer(tableContainer);
+
+  let usersList = [...usersListFromAPI];
+
+  usersList = sortClients(usersList, sortProp, isSortDirectionReverse);
+
+  usersList.forEach((user) => {
+    tableContainer.appendChild(createTalbleLine(user, userHandlers));
+  });
+}
+
+async function initApp() {
+  usersListFromAPI = await getClients("http://localhost:3000/api/clients");
+  render(usersListFromAPI);
+  handleSearchFormChange();
+}
+
+initApp();
