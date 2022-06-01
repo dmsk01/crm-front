@@ -15,8 +15,8 @@
 
   async function getClientsWithQuery(url, search = "") {
     const response = await fetch(`${url}/search?${search}`);
-    const users = await response.json().then((data) => data);
-    return users;
+    const user = await response.json().then((data) => data);
+    return user;
   }
 
   async function getClient(url, id) {
@@ -241,8 +241,8 @@
     const tableRow = document.createElement("tr");
     tableRow.classList.add("align-middle");
 
-    const created = convertISOTime(createdAt);
-    const updated = convertISOTime(updatedAt);
+    const created = convertTime(createdAt);
+    const updated = convertTime(updatedAt);
 
     const idCell = document.createElement("td");
     idCell.innerText = id;
@@ -253,11 +253,11 @@
     tableRow.appendChild(nameCell);
 
     const createdCell = document.createElement("td");
-    createdCell.innerHTML = `${created.day}.${created.month}.${created.year}<span class="ms-2">${created.hours}:${created.minutes}</span>`;
+    createdCell.innerHTML = created;
     tableRow.appendChild(createdCell);
 
     const updatedCell = document.createElement("td");
-    updatedCell.innerHTML = `${updated.day}.${updated.month}.${updated.year}<span class="ms-2">${updated.hours}:${updated.minutes}</span>`;
+    updatedCell.innerHTML = updated;
     tableRow.appendChild(updatedCell);
 
     const contactsCell = document.createElement("td");
@@ -413,20 +413,14 @@
     }
   }
 
-  function convertISOTime(isoDate) {
-    const date = new Date(isoDate);
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const day = date.getDay();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    return {
-      year,
-      month,
-      day,
-      hours,
-      minutes,
-    };
+  function convertTime(isoDate) {
+    return new Date(isoDate).toLocaleDateString("ru", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
 
   const sortClients = (clientsList, prop, isReverseOrder = false) => {
@@ -452,7 +446,6 @@
       sortProp = this.dataset.prop;
       isSortDirectionReverse = !isSortDirectionReverse;
       this.classList.toggle("reverse");
-      // initApp();
       render(usersListFromAPI);
     });
   });
