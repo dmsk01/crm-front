@@ -466,7 +466,20 @@ function render(usersListFromAPI) {
 async function initApp() {
   usersListFromAPI = await getClients("http://localhost:3000/api/clients");
   render(usersListFromAPI);
+
+  Array.from(tableContainer.children).forEach((element) => {
+    const userName = element.childNodes[1];
+    userName.addEventListener("click", async () => {
+      const id = element.childNodes[0].innerText; // 0 index td is id cell
+      const userData = await getClient("http://localhost:3000/api/clients", id);
+      createUserPage(userData);
+    });
+  });
 }
 
 initApp();
 handleSearchFormChange();
+
+function createUserPage(user) {
+  console.log("page for ", user);
+}
