@@ -50,6 +50,6 @@ export async function removeClient(url, id) {
   if (response.status === 404) {
     console.log("Something went wrong. Can't find the record.");
   }
-  data = await response.json().then((data) => data);
+  const data = await response.json().then((data) => data);
   return data;
 }

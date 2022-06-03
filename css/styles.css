@@ -77,8 +77,15 @@ button {
   line-height: 32px;
 }
 
+.contacts-list {
+  flex-wrap: wrap;
+}
+
 .contacts-list > *:not(:last-child) {
   margin-right: 7px;
+}
+.contacts-list > * {
+  margin-bottom: 7px;
 }
 
 th[data-prop] {
@@ -109,6 +116,11 @@ th.reverse .item-head__button svg {
 .table-add-person:hover > svg > path {
   fill: #fff;
 }
+
+.table-add-contact {
+  transition: all 0.3s ease 0s;
+}
+
 .table-add-contact:active > svg > path,
 .table-add-contact:focus > svg > path,
 .table-add-contact:hover > svg > path {
@@ -133,4 +145,9 @@ th.reverse .item-head__button svg {
 
 .contact-input {
   border-radius: 0;
+}
+
+.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
