@@ -208,7 +208,10 @@ function createTalbleLine(user, { onDelete, onEdit }) {
   tableRow.appendChild(idCell);
 
   const nameCell = document.createElement("td");
-  nameCell.innerText = `${surname} ${name} ${lastName}`;
+  const nameLink = document.createElement("a");
+  nameLink.href = "#" + id;
+  nameLink.innerText = `${surname} ${name} ${lastName}`;
+  nameCell.appendChild(nameLink);
   tableRow.appendChild(nameCell);
 
   const createdCell = document.createElement("td");
@@ -267,7 +270,7 @@ function createTalbleLine(user, { onDelete, onEdit }) {
   return tableRow;
 }
 
-function createModal() {
+function createEditForm() {
   const { id, name, surname, lastName, contacts } = arguments[0];
 
   const template = `
@@ -398,20 +401,20 @@ clientsTableTh.forEach((th) => {
 
 const userHandlers = {
   onAdd() {
-    createModal();
-    const saveButton = document.querySelector(".form-save-button");
-    saveButton.addEventListener("click", async () => {
-      const form = document.forms["person-form"];
-      const formInfo = collectDataFromForm(form);
-      await addClient("http://localhost:3000/api/clients", formInfo);
+    createEditForm();
+    // const saveButton = document.querySelector(".form-save-button");
+    // saveButton.addEventListener("click", async () => {
+    //   const form = document.forms["person-form"];
+    //   const formInfo = collectDataFromForm(form);
+    //   await addClient("http://localhost:3000/api/clients", formInfo);
 
-      form.reset();
+    //   form.reset();
 
-      initApp();
-    });
+    //   initApp();
+    // });
   },
   onEdit(user) {
-    createModal(user);
+    createEditForm(user);
     const saveButton = document.querySelector(".form-save-button");
     saveButton.addEventListener("click", async () => {
       const form = document.forms["person-form"];
@@ -455,20 +458,69 @@ function render(usersListFromAPI) {
 async function initApp() {
   usersListFromAPI = await getClients("http://localhost:3000/api/clients");
   render(usersListFromAPI);
-
-  Array.from(tableContainer.children).forEach((element) => {
-    const userName = element.childNodes[1];
-    userName.addEventListener("click", async () => {
-      const id = element.childNodes[0].innerText; // 0 index td is id cell
-      const userData = await getClient("http://localhost:3000/api/clients", id);
-      createUserPage(userData);
-    });
-  });
 }
 
 initApp();
 handleSearchFormChange();
 
-function createUserPage(user) {
-  console.log("page for ", user);
+function createClientCard(user) {
+  const { id, name, surname, lastName, contacts } = user;
+  const template = `
+    <div class="modal fade" id="user-card" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">
+            Пользователь id <span>${id || ""}</span>
+          </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h6 class="modal-title mb-3">
+              Имя: <span>${name || ""}</span>
+            </h6>
+            <h6 class="modal-title mb-3">
+              Фамилия: <span>${surname || ""}</span>
+            </h6>
+            <h6 class="modal-title mb-3">
+              Отчество: <span>${lastName || ""}</span>
+            </h6>
+            <div class="list-group" id="card-contacts-list">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+
+  document.querySelector("main").insertAdjacentHTML("afterend", template);
+
+  const clientModal = document.getElementById("user-card");
+
+  openModal(clientModal);
+
+  clientModal.addEventListener("hide.bs.modal", () => {
+    history.replaceState({}, document.title, ".");
+  });
 }
+
+async function updateState() {
+  const hash = window.location.hash;
+  try {
+    if (hash) {
+      const client = await getClient(
+        "http://localhost:3000/api/clients",
+        hash.substring(1)
+      );
+      client && createClientCard(client);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+window.addEventListener("hashchange", updateState);
+window.addEventListener("load", updateState);
