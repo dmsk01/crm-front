@@ -495,6 +495,16 @@ function createClientCard(user) {
       </div>
     </div>`;
 
+  console.log(contacts);
+
+  // if (contacts.length) {
+  //   const contactList = document.getElementById("card-contacts-list");
+  //   console.log(contactList);
+  //   for (let contact of contacts) {
+  //     const link = `<a href="#" class="list-group-item list-group-item-action">${contact.type}: ${contact.value}</a>`;
+  //     contactList.insertAdjacentHTML("afterbegin", "<h2>123123</h2>");
+  //   }
+  // }
 
   document.querySelector("main").insertAdjacentHTML("afterend", template);
 
