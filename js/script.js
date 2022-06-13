@@ -465,6 +465,14 @@ handleSearchFormChange();
 
 function createClientCard(user) {
   const { id, name, surname, lastName, contacts } = user;
+
+  let contactsList = "";
+  if (contacts.length) {
+    for (let contact of contacts) {
+      contactsList += `<a href="#" class="list-group-item list-group-item-action">${contact.type}: ${contact.value}</a>`;
+    }
+  }
+
   const template = `
     <div class="modal fade" id="user-card" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -486,6 +494,7 @@ function createClientCard(user) {
               Отчество: <span>${lastName || ""}</span>
             </h6>
             <div class="list-group" id="card-contacts-list">
+            ${contactsList || ""}
             </div>
           </div>
           <div class="modal-footer">
@@ -494,17 +503,6 @@ function createClientCard(user) {
         </div>
       </div>
     </div>`;
-
-  console.log(contacts);
-
-  // if (contacts.length) {
-  //   const contactList = document.getElementById("card-contacts-list");
-  //   console.log(contactList);
-  //   for (let contact of contacts) {
-  //     const link = `<a href="#" class="list-group-item list-group-item-action">${contact.type}: ${contact.value}</a>`;
-  //     contactList.insertAdjacentHTML("afterbegin", "<h2>123123</h2>");
-  //   }
-  // }
 
   document.querySelector("main").insertAdjacentHTML("afterend", template);
 
